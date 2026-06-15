@@ -5,6 +5,7 @@ import Scene from '../layout/Scene';
 import StoryScatter from '../charts/StoryScatter';
 import DistBars from '../charts/DistBars';
 import AssortGrid from '../charts/AssortGrid';
+import PeerMedianDist from '../charts/PeerMedianDist';
 
 export default function CoverageTab({ D }) {
   const [filter, setFilter] = useState("all");
@@ -45,10 +46,21 @@ export default function CoverageTab({ D }) {
           steps={[
             <><div className="kick">distributor layer</div><h3>Bangalore&rsquo;s hole is a distributor graveyard.</h3><p>Below the city totals, the loss traces to specific distributors that stopped billing.</p></>,
             <><div className="kick">₹5.8 crore to zero</div><h3><span className="fig">zero</span>.</h3><p>Four Bangalore distributors went from ₹5.8 Cr combined to nothing year-on-year.</p></>,
-            <><div className="kick">assortment</div><h3><span className="neg">₹4.2 Cr</span> assortment gap.</h3><p>One surviving Bangalore distributor carries <span className="fig">1 of 35</span> brand families available in its market.</p></>,
+            <><div className="kick">assortment</div><h3><span className="neg">₹4.2 Cr</span> region-wide gap.</h3><p>Summed across all distributors. One Bangalore distributor alone carries <span className="fig">1 of 35</span> families (its own ₹27.3 L of that total).</p></>,
           ]}
         />
       </div>
+
+      <Band no="Coverage · how the gap is sized" title="From one shelf to ₹4.2 crore.">
+        The ₹27.3 L for that single distributor and the ₹4.2 Cr region-wide are the same calculation at two
+        scopes. Here is the method, step by step.
+      </Band>
+      <PeerMedianDist
+        perDistGap={(D.assortGaps && D.assortGaps[0] && D.assortGaps[0].gap) || 27.3}
+        missing={D.assortGaps && D.assortGaps[0] ? (D.assortGaps[0].avail - D.assortGaps[0].carried) : 34}
+        total={D.assortTotalGap || 424.4}
+        distName={D.assortGaps && D.assortGaps[0] ? `${D.assortGaps[0].dist} · ${D.assortGaps[0].city}` : "C12949 · Bangalore"}
+      />
     </div>
   );
 }
