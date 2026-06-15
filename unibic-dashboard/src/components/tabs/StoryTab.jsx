@@ -215,7 +215,6 @@ export default function StoryTab({ D }) {
       <section className="handoff">
         <div className="bno">That's the narrative</div>
         <h2 className="bh">Now explore it yourself.</h2>
-        <p className="bp">The tabs above open the full interactive dashboard — the new <b>Map</b> for clicking through the South point by point, the CEO channel/region/brand/pack grids with period comparisons, plus the retailer, area-zone, brand×geography, state and coverage drill-downs. Everything here is investigation; no recommendations are drawn.</p>
       </section>
     </div>
   );

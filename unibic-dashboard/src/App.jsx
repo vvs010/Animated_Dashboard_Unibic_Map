@@ -91,7 +91,7 @@ export default function App() {
       </main>
       
       <footer className="ft">
-        <b>Data sources.</b> Story + Channel / GT Region / Brand / Pack grids replicate the CEO Power BI snapshot (period to 30 Apr 2026; ₹ Million and Ton). South Deep-Dive, Coverage, and the story's FY trajectory derive from the three-FY transaction analysis (<code>L3Y_Sales_Final.parquet</code>, 910,807 GT-core lines; ₹ lakh) and SFA market-coverage extracts. The two regimes differ in period and scale and are not summed; each view states its unit. If a <code>data.json</code> is served next to this app, its values are used live. Investigation only — no recommendations.
+        <b>Data sources.</b> Story + Channel / GT Region / Brand / Pack grids replicate the CEO Power BI snapshot (period to 30 Apr 2026; ₹ Million and Ton). South Deep-Dive, Coverage, and the story's FY trajectory derive from the three-FY transaction analysis (<code>L3Y_Sales_Final.parquet</code>, 910,807 GT-core lines; ₹ lakh) and SFA market-coverage extracts. The two regimes differ in period and scale and are not summed; each view states its unit. If a <code>data.json</code> is served next to this app, its values are used live.
       </footer>
     </div>
   );
