@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useInView } from '../../hooks/useInView';
 import { useCountUp } from '../../hooks/useCountUp';
 import { SCOL } from '../../data/defaultData';
@@ -20,9 +20,16 @@ import { buildCityCards, buildStateCard, STATE_DEFS } from '../../data/mapData';
 
 function CovStickyStory({ step, D }) {
   const [filter, setFilter] = useState("all");
-  if (step === 1) return (<div><div className="ctitle">Distributors lost YoY (Bangalore-led) · ₹ lakh</div><DistBars D={D} /></div>);
-  if (step === 2) return (<div><div className="ctitle">Assortment held — one Bangalore distributor</div><AssortGrid /></div>);
-  return (<div><div className="ctitle">Breadth vs depth · FY 25-26</div><StoryScatter filter={filter} setFilter={setFilter} COV={D.cov} /></div>);
+  // Replay each chart's entrance animation whenever it becomes the active step.
+  const [seen, setSeen] = useState(false);
+  useEffect(() => {
+    setSeen(false);
+    const t = setTimeout(() => setSeen(true), 90);
+    return () => clearTimeout(t);
+  }, [step]);
+  if (step === 1) return (<div><div className="ctitle">Distributors lost YoY (Bangalore-led) · ₹ lakh</div><DistBars D={D} seen={seen} /></div>);
+  if (step === 2) return (<div><div className="ctitle">Assortment held — one Bangalore distributor</div><AssortGrid seen={seen} /></div>);
+  return (<div><div className="ctitle">Breadth vs depth · FY 25-26</div><StoryScatter filter={filter} setFilter={setFilter} COV={D.cov} seen={seen} /></div>);
 }
 
 // Story map: as the reader scrolls, the map auto-walks across the four states;

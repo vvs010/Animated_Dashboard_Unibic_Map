@@ -49,7 +49,7 @@ export default function PeerMedianDist({
   const medX = x(mu);
 
   return (
-    <div className="pmd" ref={ref}>
+    <div className="pmd" id="how-gap-sized" ref={ref}>
       <div className="ctitle">How the gap is sized — peer-median method</div>
 
       {/* STEP 1 — the bell curve */}

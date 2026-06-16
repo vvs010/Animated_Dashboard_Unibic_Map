@@ -55,6 +55,14 @@ export default function AssortGrid({
       <p className="note">The grid is one illustrative distributor. Its own missing-range opportunity is
         <b> ₹{dist.gap.toFixed(1)} L</b>; the <b>₹{(total / 100).toFixed(1)} Cr</b> is the sum of every distributor&rsquo;s
         sized gap across the South, shown here only because the grid can draw one at a time.</p>
+      <button
+        type="button"
+        className="assort-link"
+        onClick={() => window.dispatchEvent(new CustomEvent("goto-gap-method"))}
+      >
+        See the full method &mdash; the peer-median bell curve
+        <span aria-hidden="true">&nbsp;&rarr;</span>
+      </button>
     </div>
   );
 }

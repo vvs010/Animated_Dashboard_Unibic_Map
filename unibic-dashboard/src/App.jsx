@@ -47,6 +47,27 @@ export default function App() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  // Deep-link from the assortment grid to the Coverage tab's peer-median
+  // bell-curve explainer (fired by the "See the full method" link).
+  useEffect(() => {
+    const handler = () => {
+      setTab("coverage");
+      let tries = 0;
+      const go = () => {
+        const el = document.getElementById("how-gap-sized");
+        if (el) {
+          const top = el.getBoundingClientRect().top + window.scrollY - 76;
+          window.scrollTo({ top, behavior: "smooth" });
+        } else if (tries++ < 25) {
+          setTimeout(go, 60);
+        }
+      };
+      setTimeout(go, 80);
+    };
+    window.addEventListener("goto-gap-method", handler);
+    return () => window.removeEventListener("goto-gap-method", handler);
+  }, []);
+
   const showUnit = tab !== "story" && tab !== "south" && tab !== "coverage"
     && tab !== "retailer" && tab !== "area" && tab !== "brandgeo" && tab !== "map";
 

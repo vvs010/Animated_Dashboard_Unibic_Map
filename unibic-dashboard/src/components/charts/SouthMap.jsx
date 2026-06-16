@@ -101,7 +101,8 @@ export default function SouthMap({ activeState, activeCity, onState, onCity, car
                 style={{
                   cursor: isKerala ? "default" : "pointer",
                   transition: "fill-opacity .4s ease",
-                  filter: sel ? "drop-shadow(0 6px 14px rgba(16,33,43,.25))" : "none",
+                  filter: sel ? "drop-shadow(0 6px 14px rgba(16,33,43,.25))"
+                    : hot ? "drop-shadow(0 4px 10px rgba(16,33,43,.18))" : "none",
                 }}
                 onClick={(e) => {
                   if (isKerala) return;
@@ -146,25 +147,49 @@ export default function SouthMap({ activeState, activeCity, onState, onCity, car
         {citiesToShow.map(([n, [x, y, st]]) => {
           const card = cardOf && cardOf.city ? cardOf.city(n) : null;
           const isActive = activeCity === n;
+          const isHover = hover === "city:" + n;
+          const lift = isActive || isHover;
           const loss = card && card.loss != null ? Math.abs(card.loss) : 0;
-          const rad = (3.4 + Math.min(loss, 460) / 460 * 6.2) / zoom; // size by loss, kept constant on screen
+          // size by loss but with a clearer floor so every point is easy to hit
+          const rad = (5 + Math.min(loss, 460) / 460 * 6) / zoom;
+          // generous invisible tap/click target around each point
+          const hit = Math.max(rad * 2.6, 17 / zoom);
           const flagged = card && (card.loss != null || (card.dists && card.dists.length) || (card.gaps && card.gaps.length));
           const col = SCOL[st] || INK;
+          // flagged points keep their label visible so users know what to drill into
+          const showLab = isActive || isHover || flagged || zoom > 2.2;
           return (
-            <g key={n} style={{ cursor: "pointer" }}
+            <g key={n} className="smap-pt"
                onClick={(e) => { e.stopPropagation(); onCity(isActive ? null : n); }}
                onMouseEnter={() => setHover("city:" + n)}
                onMouseLeave={() => setHover(null)}>
-              {/* pulse ring on active */}
-              {isActive && <circle cx={x} cy={y} r={rad * 2.4} fill={col} opacity={0.18} className="smap-pulse" />}
-              <circle cx={x} cy={y} r={isActive ? rad * 1.5 : rad}
-                      fill={flagged ? col : "#9aa3a8"} stroke="#fff" strokeWidth={1.4 / zoom}
+              {/* generous transparent hit area */}
+              <circle cx={x} cy={y} r={hit} fill="transparent" style={{ cursor: "pointer" }} />
+
+              {/* pulse + ring on the active point */}
+              {isActive && <circle cx={x} cy={y} r={rad * 2.6} fill={col} opacity={0.16} className="smap-pulse" />}
+              {isActive && <circle cx={x} cy={y} r={rad + 5.5 / zoom} fill="none" stroke={col} strokeWidth={2.2 / zoom} />}
+
+              {/* halo so a flagged, clickable point reads as tappable */}
+              {flagged && !isActive && (
+                <circle cx={x} cy={y} r={rad + (isHover ? 5 : 3.5) / zoom} fill="none"
+                        stroke={col} strokeOpacity={isHover ? 0.6 : 0.32} strokeWidth={1.6 / zoom}
+                        style={{ transition: "r .2s ease" }} />
+              )}
+
+              <circle cx={x} cy={y} r={lift ? rad * 1.4 : rad}
+                      fill={flagged ? col : "#aeb6ba"} fillOpacity={flagged ? 1 : 0.66}
+                      stroke="#fff" strokeWidth={1.8 / zoom}
                       className="smap-city"
-                      style={{ transition: "r .25s ease" }} />
-              {(isActive || hover === "city:" + n || zoom > 2.4) && (
-                <text x={x} y={y - (rad * 1.5 + 5 / zoom)} textAnchor="middle"
-                      className="smap-city-lab"
-                      style={{ fontSize: 14 / zoom + "px" }}>{n}</text>
+                      style={{
+                        cursor: "pointer",
+                        filter: lift ? `drop-shadow(0 ${3 / zoom}px ${6 / zoom}px rgba(16,33,43,.35))` : "none",
+                      }} />
+
+              {showLab && (
+                <text x={x} y={y - (rad * 1.5 + 7 / zoom)} textAnchor="middle"
+                      className={"smap-city-lab" + (isActive ? " on" : "")}
+                      style={{ pointerEvents: "none", fontSize: (isActive ? 15 : 13) / zoom + "px" }}>{n}</text>
               )}
             </g>
           );
@@ -178,7 +203,7 @@ export default function SouthMap({ activeState, activeCity, onState, onCity, car
         ) : (
           <span className="smap-hint">Tap a state to zoom in</span>
         )}
-        {activeState && <span className="smap-hint">Tap a point for its drill-down ↓</span>}
+        {activeState && <span className="smap-hint">Tap a coloured point to drill down ↓</span>}
       </div>
     </div>
   );
