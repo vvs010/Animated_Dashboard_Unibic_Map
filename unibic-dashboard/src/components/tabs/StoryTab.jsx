@@ -49,6 +49,109 @@ function MapStory({ step, D }) {
   );
 }
 
+// Story sections, in order — one entry per Part. Drives the roadmap rail.
+const CHAPTERS = [
+  { n: "01", t: "The shape of the problem",     s: "Watch the South fade" },
+  { n: "02", t: "Accounting for the fall",      s: "Where did ₹50 crore go?" },
+  { n: "03", t: "Locating the loss",            s: "No state spared, one punished" },
+  { n: "04", t: "Two cuts of the same rupees",  s: "A postcode and a price tag" },
+  { n: "05", t: "The coverage paradox",         s: "More shops, thinner bills" },
+  { n: "06", t: "The retailer layer",           s: "A wide net, a thin catch" },
+  { n: "07", t: "The sales zones",              s: "Eleven zones, ten bleeding" },
+  { n: "08", t: "Brand × geography",            s: "The same gap everywhere" },
+  { n: "09", t: "The whole South, on one map",  s: "Now make it interactive" },
+];
+
+// A scrollbar-style section navigator pinned to the side of the story. A fill
+// and thumb track scroll position in real time; each section is a clickable
+// stop. The rail stays slim until hovered, then slides out the section labels.
+function RoadmapRail() {
+  const [active, setActive] = useState(0);
+  const [progress, setProgress] = useState(0);
+  const [open, setOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    const t = setTimeout(() => setMounted(true), 60);
+    const ids = CHAPTERS.map((c) => "chap-" + c.n);
+    let raf = 0;
+    const measure = () => {
+      raf = 0;
+      const vh = window.innerHeight;
+      const line = window.scrollY + vh * 0.42; // the "reading line"
+      const tops = ids.map((id) => {
+        const el = document.getElementById(id);
+        return el ? el.getBoundingClientRect().top + window.scrollY : Infinity;
+      });
+      let act = 0;
+      for (let i = 0; i < tops.length; i++) if (line >= tops[i]) act = i;
+      const start = tops[0];
+      const end = tops[tops.length - 1];
+      const p = end > start ? (line - start) / (end - start) : 0;
+      setActive(act);
+      setProgress(Math.max(0, Math.min(1, p)));
+    };
+    const onScroll = () => { if (!raf) raf = requestAnimationFrame(measure); };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    measure();
+    return () => {
+      clearTimeout(t);
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+      cancelAnimationFrame(raf);
+    };
+  }, []);
+
+  const go = (id) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const top = el.getBoundingClientRect().top + window.scrollY - 72;
+    window.scrollTo({ top, behavior: "smooth" });
+  };
+
+  const N = CHAPTERS.length;
+  const pct = (progress * 100).toFixed(2) + "%";
+
+  return (
+    <nav
+      className={"roadmap" + (open ? " open" : "") + (mounted ? " in" : "")}
+      onMouseEnter={() => setOpen(true)}
+      onMouseLeave={() => setOpen(false)}
+      aria-label="Story sections"
+    >
+      <div className="rm-cap">{CHAPTERS[active].n}<span>/{CHAPTERS[N - 1].n}</span></div>
+      <div className="rm-track">
+        <div className="rm-line" />
+        <div className="rm-fill" style={{ height: pct }} />
+        <div className="rm-thumb" style={{ top: pct }} />
+        {CHAPTERS.map((c, i) => {
+          const on = i === active;
+          const done = i < active;
+          const top = (N > 1 ? (i / (N - 1)) * 100 : 0) + "%";
+          return (
+            <button
+              key={c.n}
+              type="button"
+              className={"rm-stop" + (on ? " on" : "") + (done ? " done" : "")}
+              style={{ top, transitionDelay: (i * 45) + "ms" }}
+              onClick={() => go("chap-" + c.n)}
+              aria-current={on ? "true" : undefined}
+              aria-label={"Part " + c.n + ": " + c.t}
+            >
+              <span className="rm-label">
+                <span className="rm-lt">{c.t}</span>
+                <span className="rm-ls">{c.s}</span>
+              </span>
+              <span className="rm-dot"><span className="rm-n">{c.n}</span></span>
+            </button>
+          );
+        })}
+      </div>
+    </nav>
+  );
+}
+
 export default function StoryTab({ D }) {
   const [hRef, hSeen] = useInView({ threshold: 0.3 });
   const a = useCountUp(30, hSeen);
@@ -116,6 +219,9 @@ export default function StoryTab({ D }) {
         </div>
       </header>
 
+      <RoadmapRail />
+
+      <div id="chap-01" className="chap-anchor" />
       <Band no="Part 01 — The shape of the problem" title="Watch the South fade.">
         Gross Sales Value by state, three fiscal years on one colour scale. The darker the blue, the bigger the book. Keep your eye on the southern tip.
       </Band>
@@ -127,6 +233,7 @@ export default function StoryTab({ D }) {
           <><div className="kick">the control group</div><h3>Kerala didn't get the memo.</h3><p>Same products, prices, company — Kerala <em>grew</em> <span className="fig">₹52.4 → ₹56.7 Cr (+8.2%)</span>. This is an execution gap in four states, not a category problem.</p></>,
         ]} />
 
+      <div id="chap-02" className="chap-anchor" />
       <Band no="Part 02 — Accounting for the fall" title="Where did ₹50 crore go?">
         Bridge the national book from FY 23-24 to FY 25-26, brick by brick. One region built; the rest broke — and one broke most.
       </Band>
@@ -137,6 +244,7 @@ export default function StoryTab({ D }) {
           <><div className="kick">the brick that matters</div><h3>One region. Half the hole.</h3><p>South ex-Kerala alone removed <span className="neg fig">−₹26.8 Cr</span> — <span className="fig">53%</span> of the national decline. No other block comes close.</p></>,
         ]} />
 
+      <div id="chap-03" className="chap-anchor" />
       <Band no="Part 03 — Locating the loss" title={<>No state spared.<br />One punished.</>}>
         The same three years as trajectories — watch them draw. Solid lines are the focus states; the dashed line is Kerala, the benchmark that kept climbing.
       </Band>
@@ -149,6 +257,7 @@ export default function StoryTab({ D }) {
           ]} />
       </div>
 
+      <div id="chap-04" className="chap-anchor" />
       <Band no="Part 04 — Two cuts of the same rupees" title="Half has a postcode. Half has a price tag.">
         Rank the decline by city, then re-rank the very same rupees by pack — watch the bars re-sort.
       </Band>
@@ -162,6 +271,7 @@ export default function StoryTab({ D }) {
           <><div className="kick">the volume tell</div><h3>Volume falls <em>faster</em> than value.</h3><p>Index 73 vs 61: realisation per ton rose as low-price penetration packs exited the mix.</p></>,
         ]} />
 
+      <div id="chap-05" className="chap-anchor" />
       <Band no="Part 05 — The coverage paradox" title={<>More shops.<br />Thinner bills.</>}>
         The FY 25-26 market-coverage data holds the counterintuitive finding: reach is not the binding constraint.
       </Band>
@@ -172,6 +282,7 @@ export default function StoryTab({ D }) {
           <><div className="kick">assortment</div><h3>A <span className="neg">₹4.2 Cr</span> assortment gap.</h3><p>One Bangalore distributor carries <span className="fig">1 of 35</span> brand families available in its market.</p></>,
         ]} />
 
+      <div id="chap-06" className="chap-anchor" />
       <Band no="Part 06 — The retailer layer" title={<>A wide net.<br />A thin catch.</>}>
         Drop from cities to the outlets themselves. Reach has run ahead of depth — the more shops a state serves, the less each one seems to buy. (FY 25-26 structure; outlet counts aren't compared across years.)
       </Band>
@@ -184,6 +295,7 @@ export default function StoryTab({ D }) {
           ]} />
       </div>
 
+      <div id="chap-07" className="chap-anchor" />
       <Band no="Part 07 — The sales zones" title={<>Eleven zones.<br />Ten are bleeding.</>}>
         Re-cut the decline by sales zone — invoice-derived, so the three-year comparison is clean. Each faded bar is FY 23-24; the solid bar drains to where FY 25-26 landed.
       </Band>
@@ -196,6 +308,7 @@ export default function StoryTab({ D }) {
           ]} />
       </div>
 
+      <div id="chap-08" className="chap-anchor" />
       <Band no="Part 08 — Brand × geography" title="The same family. The same gap. Everywhere.">
         One last cross-reference: which brand families are under-indexed where. The hollow dot is a city's actual share of mix; the solid dot is the regional benchmark. The longer the dumbbell, the bigger the rupee gap.
       </Band>
@@ -208,6 +321,7 @@ export default function StoryTab({ D }) {
           ]} />
       </div>
 
+      <div id="chap-09" className="chap-anchor" />
       <Band no="Part 09 — The whole South, on one map" title="Now make it interactive.">
         Everything so far — states, cities, zones, distributors, brand gaps — lives on one map. Watch it sweep the four states; then open the Map tab to click any point yourself.
       </Band>
