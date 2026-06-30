@@ -1,8 +1,4 @@
 {
   "buildCommand": "cd unibic-dashboard && npm run build",
-  "outputDirectory": "unibic-dashboard/dist",
-  "env": [
-    "AUTH_USER",
-    "AUTH_PASS"
-  ]
+  "outputDirectory": "unibic-dashboard/dist"
 }
